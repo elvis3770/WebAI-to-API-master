@@ -1,370 +1,440 @@
-## Disclaimer
+# 🚀 WebAI-to-API v0.5.0 - Production Ready
 
-> **This project is intended for research and educational purposes only.**  
-> Please refrain from any commercial use and act responsibly when deploying or modifying this tool.
+> **Fork mejorado de [WebAI-to-API](https://github.com/Amm1rr/WebAI-to-API)** con mejoras de seguridad, testing, monitoreo y funcionalidades avanzadas para uso en producción y agentes AI.
 
----
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
 
-# WebAI-to-API
+## 🆕 Mejoras en Esta Versión (v0.5.0)
 
-<p align="center">
-  <img src="./assets/Server-Run-WebAI.png" alt="WebAI-to-API Server" height="160" />
-  <img src="./assets/Server-Run-G4F.png" alt="gpt4free Server" height="160" />
-</p>
+Esta versión incluye **mejoras significativas** sobre el proyecto original, especialmente orientadas a **producción** y **agentes AI**:
 
-**WebAI-to-API** is a modular web server built with FastAPI that allows you to expose your preferred browser-based LLM (such as Gemini) as a local API endpoint.
+### 🔒 Seguridad y Autenticación
+- ✅ **API Key Authentication**: Sistema completo de autenticación con middleware personalizado
+- ✅ **Rate Limiting**: Protección contra abuso con algoritmo de ventana deslizante (configurable)
+- ✅ **CORS Configurable**: Restricción de orígenes desde variables de entorno
+- ✅ **Gestión Segura de Secretos**: Migración completa a `.env` con `python-dotenv`
 
----
+### 📊 Monitoreo y Observabilidad
+- ✅ **Health Checks Avanzados**: 
+  - `/health` - Health check básico con uptime
+  - `/health/live` - Liveness probe para Kubernetes
+  - `/health/ready` - Readiness probe con verificación de servicios
+  - `/metrics` - Métricas básicas de la aplicación
+- ✅ **Logging Estructurado**: Sistema de logging mejorado
+- ✅ **Uptime Tracking**: Monitoreo de tiempo de actividad
 
-This project supports **two operational modes**:
+### 🔄 Funcionalidades Avanzadas para Agentes AI
+- ✅ **Streaming SSE**: Respuestas en tiempo real con Server-Sent Events
+- ✅ **Conteo Real de Tokens**: Integración con `tiktoken` para conteo preciso
+- ✅ **Estimación de Costos**: Cálculo automático de costos por modelo
+- ✅ **Auto-renovación de Cookies**: Sistema automático de renovación de cookies de Gemini
+- ✅ **Formato OpenAI Compatible**: 100% compatible con clientes OpenAI
 
-1. **Primary Web Server**
+### 🧪 Testing y Calidad de Código
+- ✅ **Suite Completa de Tests**: Tests con `pytest` y fixtures
+- ✅ **Coverage Configurado**: Objetivo >80% de cobertura
+- ✅ **Linting**: Configuración de `ruff` y `black`
+- ✅ **Type Checking**: Configuración de `mypy`
 
-   > WebAI-to-API
-
-   Connects to the Gemini web interface using your browser cookies and exposes it as an API endpoint. This method is lightweight, fast, and efficient for personal use.
-
-2. **Fallback Web Server (gpt4free)**
-
-   > [gpt4free](https://github.com/xtekky/gpt4free)
-
-   A secondary server powered by the `gpt4free` library, offering broader access to multiple LLMs beyond Gemini, including:
-
-   - ChatGPT
-   - Claude
-   - DeepSeek
-   - Copilot
-   - HuggingFace Inference
-   - Grok
-   - ...and many more.
-
-This design provides both **speed and redundancy**, ensuring flexibility depending on your use case and available resources.
-
----
-
-## Features
-
-- 🌐 **Available Endpoints**:
-
-  - **WebAI Server**:
-
-    - `/v1/chat/completions`
-    - `/gemini`
-    - `/gemini-chat`
-    - `/translate`
-    - `/v1beta/models/{model}` (Google Generative AI v1beta API)
-
-  - **gpt4free Server**:
-    - `/v1`
-    - `/v1/chat/completions`
-
-- 🔄 **Server Switching**: Easily switch between servers in terminal.
-
-- 🛠️ **Modular Architecture**: Organized into clearly defined modules for API routes, services, configurations, and utilities, making development and maintenance straightforward.
-
-<p align="center">
-  <img src="./assets/Endpoints-Docs.png" alt="Endpoints" height="280" />
-</p>
+### 📝 Documentación Exhaustiva
+- ✅ **[SECURITY.md](SECURITY.md)**: Guía completa de seguridad y mejores prácticas
+- ✅ **[TESTING.md](TESTING.md)**: Guía de testing con ejemplos
+- ✅ **[QUICKSTART.md](QUICKSTART.md)**: Inicio rápido en 5 minutos
+- ✅ **[GEMINI_SETUP.md](GEMINI_SETUP.md)**: Configuración detallada de cookies de Gemini
 
 ---
 
-## Installation
+## 📋 Tabla de Contenidos
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/Amm1rr/WebAI-to-API.git
-   cd WebAI-to-API
-   ```
-
-2. **Install dependencies using Poetry:**
-
-   ```bash
-   poetry install
-   ```
-
-3. **Create and update the configuration file:**
-
-   ```bash
-   cp config.conf.example config.conf
-   ```
-
-   Then, edit `config.conf` to adjust service settings and other options.
-
-4. **Run the server:**
-
-   ```bash
-   poetry run python src/run.py
-   ```
+- [Características](#-características)
+- [Instalación Rápida](#-instalación-rápida)
+- [Configuración](#-configuración)
+- [Uso](#-uso)
+- [Endpoints](#-endpoints)
+- [Para Agentes AI](#-para-agentes-ai)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Comparación con Original](#-comparación-con-original)
 
 ---
 
-## Usage
+## ✨ Características
 
-Send a POST request to `/v1/chat/completions` (or any other available endpoint) with the required payload.
+### Modos de Operación Dual
+- **WebAI Mode**: Conexión directa a Gemini (más rápido, requiere cookies)
+- **gpt4free Mode**: Acceso a múltiples LLMs sin API keys (fallback automático)
 
-### Example Request
+### Modelos Soportados
+- **Gemini**: 2.0-flash, 2.5-pro, 1.5-flash, 3.0-pro
+- **Via gpt4free**: GPT-4, Claude, Grok, y más
 
-```json
-{
-  "model": "gemini-3.0-pro",
-  "messages": [{ "role": "user", "content": "Hello!" }]
-}
+### Seguridad Production-Ready
+- Autenticación con API keys
+- Rate limiting configurable
+- CORS restringido por dominio
+- Gestión segura de secretos
+
+---
+
+## 🚀 Instalación Rápida
+
+### Opción 1: Poetry (Recomendado)
+
+```bash
+git clone https://github.com/elvis3770/WebAI-to-API-master.git
+cd WebAI-to-API-master
+poetry install
+cp .env.example .env
+# Edita .env con tu configuración
+poetry run python src/run.py
 ```
 
-### Example Response
+### Opción 2: pip
 
-```json
-{
-  "id": "chatcmpl-12345",
-  "object": "chat.completion",
-  "created": 1693417200,
-  "model": "gemini-3.0-pro",
-  "choices": [
-    {
-      "message": {
-        "role": "assistant",
-        "content": "Hi there!"
-      },
-      "finish_reason": "stop",
-      "index": 0
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 0,
-    "completion_tokens": 0,
-    "total_tokens": 0
-  }
-}
+```bash
+git clone https://github.com/elvis3770/WebAI-to-API-master.git
+cd WebAI-to-API-master
+pip install -r requirements.txt
+cp .env.example .env
+# Edita .env con tu configuración
+python src/run.py
 ```
 
 ---
 
-## Documentation
+## ⚙️ Configuración
 
-### WebAI-to-API Endpoints
+### 1. Generar API Key
 
-> `POST /gemini`
+```python
+import secrets
+print(secrets.token_urlsafe(32))
+```
 
-Initiates a new conversation with the LLM. Each request creates a **fresh session**, making it suitable for stateless interactions.
+### 2. Configurar `.env`
 
-> `POST /gemini-chat`
+```env
+# Seguridad
+API_KEYS=tu-api-key-generada-aqui
+API_AUTH_ENABLED=true
+RATE_LIMIT_PER_MINUTE=60
 
-Continues a persistent conversation with the LLM without starting a new session. Ideal for use cases that require context retention between messages.
+# CORS (producción)
+ALLOWED_ORIGINS=https://tudominio.com
 
-> `POST /translate`
+# Gemini (opcional - auto-detecta desde navegador)
+GEMINI_COOKIE_1PSID=
+GEMINI_COOKIE_1PSIDTS=
 
-Designed for quick integration with the [Translate It!](https://github.com/iSegaro/Translate-It) browser extension.
-Functionally identical to `/gemini-chat`, meaning it **maintains session context** across requests.
+# Configuración
+GEMINI_DEFAULT_MODEL=gemini-2.0-flash
+STREAMING_ENABLED=true
+```
 
-> `POST /v1/chat/completions`
-
-A **minimalistic implementation** of the OpenAI-compatible endpoint.
-Built for simplicity and ease of integration with clients that expect the OpenAI API format.
-
-> `POST /v1beta/models/{model}`
-
-**Google Generative AI v1beta API** compatible endpoint.
-Provides access to the latest Google Generative AI models with standard Google API format including safety ratings and structured responses.
+Ver [QUICKSTART.md](QUICKSTART.md) para configuración completa.
 
 ---
 
-### gpt4free Endpoints
+## 💻 Uso
 
-These endpoints follow the **OpenAI-compatible structure** and are powered by the `gpt4free` library.  
-For detailed usage and advanced customization, refer to the official documentation:
+### Inicio Básico
 
-- 📄 [Provider Documentation](https://github.com/gpt4free/g4f.dev/blob/main/docs/selecting_a_provider.md)
-- 📄 [Model Documentation](https://github.com/gpt4free/g4f.dev/blob/main/docs/providers-and-models.md)
-
-#### Available Endpoints (gpt4free API Layer)
-
+```bash
+python src/run.py
 ```
-GET  /                              # Health check
-GET  /v1                            # Version info
-GET  /v1/models                     # List all available models
-GET  /api/{provider}/models         # List models from a specific provider
-GET  /v1/models/{model_name}        # Get details of a specific model
 
-POST /v1/chat/completions           # Chat with default configuration
-POST /api/{provider}/chat/completions
-POST /api/{provider}/{conversation_id}/chat/completions
+### Cambiar entre Modos
 
-POST /v1/responses                  # General response endpoint
-POST /api/{provider}/responses
+Mientras el servidor está corriendo:
+- Presiona `1` + Enter para **WebAI mode** (Gemini)
+- Presiona `2` + Enter para **gpt4free mode**
 
-POST /api/{provider}/images/generations
-POST /v1/images/generations
-POST /v1/images/generate            # Generate images using selected provider
+### Ejemplo de Request
 
-POST /v1/media/generate             # Media generation (audio/video/etc.)
+```bash
+curl -X POST http://localhost:6969/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu-api-key" \
+  -d '{
+    "model": "gemini-2.0-flash",
+    "messages": [
+      {"role": "user", "content": "Explica qué son los agentes AI"}
+    ]
+  }'
+```
 
-GET  /v1/providers                  # List all providers
-GET  /v1/providers/{provider}       # Get specific provider info
+### Con Streaming
 
-POST /api/{path_provider}/audio/transcriptions
-POST /v1/audio/transcriptions       # Audio-to-text
-
-POST /api/markitdown                # Markdown rendering
-
-POST /api/{path_provider}/audio/speech
-POST /v1/audio/speech               # Text-to-speech
-
-POST /v1/upload_cookies             # Upload session cookies (browser-based auth)
-
-GET  /v1/files/{bucket_id}          # Get uploaded file from bucket
-POST /v1/files/{bucket_id}          # Upload file to bucket
-
-GET  /v1/synthesize/{provider}      # Audio synthesis
-
-POST /json/{filename}               # Submit structured JSON data
-
-GET  /media/{filename}              # Retrieve media
-GET  /images/{filename}             # Retrieve images
+```bash
+curl -X POST http://localhost:6969/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: tu-api-key" \
+  -d '{
+    "model": "gemini-2.0-flash",
+    "messages": [{"role": "user", "content": "Cuéntame una historia"}],
+    "stream": true
+  }'
 ```
 
 ---
 
-## Roadmap
+## 📡 Endpoints
 
-- ✅ Maintenance
+### Health & Monitoring
+- `GET /health` - Health check básico
+- `GET /health/live` - Liveness probe
+- `GET /health/ready` - Readiness probe  
+- `GET /metrics` - Métricas de la aplicación
 
----
+### Chat (OpenAI Compatible)
+- `POST /v1/chat/completions` - Chat completions con streaming
+- `POST /gemini` - Endpoint directo de Gemini
+- `POST /gemini-chat` - Chat persistente con historial
 
-<details>
-  <summary>
-    <h2>Configuration ⚙️</h2>
-  </summary>
-
-### Key Configuration Options
-
-| Section     | Option     | Description                                | Example Value           |
-| ----------- | ---------- | ------------------------------------------ | ----------------------- |
-| [AI]        | default_ai | Default service for `/v1/chat/completions` | `gemini`                |
-| [Browser]   | name       | Browser for cookie-based authentication    | `firefox`               |
-| [EnabledAI] | gemini     | Enable/disable Gemini service              | `true`                  |
-| [Proxy]     | http_proxy | Proxy for Gemini connections (optional)    | `http://127.0.0.1:2334` |
-
-The complete configuration template is available in [`WebAI-to-API/config.conf.example`](WebAI-to-API/config.conf.example).  
-If the cookies are left empty, the application will automatically retrieve them using the default browser specified.
+### Documentación
+- `GET /docs` - Swagger UI interactivo
+- `GET /redoc` - Documentación ReDoc
 
 ---
 
-### Sample `config.conf`
+## 🤖 Para Agentes AI
 
-```ini
-[AI]
-# Default AI service.
-default_ai = gemini
+Esta versión está optimizada para uso con frameworks de agentes:
 
-# Default model for Gemini.
-default_model_gemini = gemini-3.0-pro
+### LangChain
 
-# Gemini cookies (leave empty to use browser_cookies3 for automatic authentication).
-gemini_cookie_1psid =
-gemini_cookie_1psidts =
+```python
+from langchain_openai import ChatOpenAI
 
-[EnabledAI]
-# Enable or disable AI services.
-gemini = true
+llm = ChatOpenAI(
+    base_url="http://localhost:6969/v1",
+    api_key="tu-api-key",
+    model="gemini-2.0-flash",
+    streaming=True
+)
 
-[Browser]
-# Default browser options: firefox, brave, chrome, edge, safari.
-name = firefox
-
-# --- Proxy Configuration ---
-# Optional proxy for connecting to Gemini servers.
-# Useful for fixing 403 errors or restricted connections.
-[Proxy]
-http_proxy =
+response = llm.invoke("Explica agentes AI")
 ```
 
-</details>
+### CrewAI
+
+```python
+from crewai import Agent, Task, Crew
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(
+    base_url="http://localhost:6969/v1",
+    api_key="tu-api-key",
+    model="gemini-2.0-flash"
+)
+
+agent = Agent(
+    role="Investigador",
+    goal="Investigar sobre IA",
+    llm=llm
+)
+```
+
+### AutoGen
+
+```python
+import autogen
+
+config_list = [{
+    "model": "gemini-2.0-flash",
+    "base_url": "http://localhost:6969/v1",
+    "api_key": "tu-api-key"
+}]
+
+assistant = autogen.AssistantAgent(
+    name="assistant",
+    llm_config={"config_list": config_list}
+)
+```
+
+### Ventajas para Agentes
+- ✅ **Gratis**: Sin costos de API de Gemini
+- ✅ **Rápido**: Conexión directa a Gemini
+- ✅ **Confiable**: Fallback automático a gpt4free
+- ✅ **Monitoreado**: Health checks y métricas
+- ✅ **Seguro**: Rate limiting y autenticación
 
 ---
 
-## Project Structure
+## 🧪 Testing
 
-The project now follows a modular layout that separates configuration, business logic, API endpoints, and utilities:
+```bash
+# Ejecutar todos los tests
+pytest
 
-```plaintext
-src/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                # FastAPI app creation, configuration, and lifespan management.
-│   ├── config.py              # Global configuration loader/updater.
-│   ├── logger.py              # Centralized logging configuration.
-│   ├── endpoints/             # API endpoint routers.
-│   │   ├── __init__.py
-│   │   ├── gemini.py          # Endpoints for Gemini (e.g., /gemini, /gemini-chat).
-│   │   ├── chat.py            # Endpoints for translation and OpenAI-compatible requests.
-│   │   └── google_generative.py  # Google Generative AI v1beta API endpoints.
-│   ├── services/              # Business logic and service wrappers.
-│   │   ├── __init__.py
-│   │   ├── gemini_client.py   # Gemini client initialization, content generation, and cleanup.
-│   │   └── session_manager.py # Session management for chat and translation.
-│   └── utils/                 # Helper functions.
-│       ├── __init__.py
-│       └── browser.py         # Browser-based cookie retrieval.
-├── models/                    # Models and wrappers (e.g., MyGeminiClient).
-│   └── gemini.py
-├── schemas/                   # Pydantic schemas for request/response validation.
-│   └── request.py
-├── config.conf                # Application configuration file.
-└── run.py                     # Entry point to run the server.
+# Con coverage
+pytest --cov=src --cov-report=html
+
+# Ver reporte
+open htmlcov/index.html
+```
+
+Ver [TESTING.md](TESTING.md) para guía completa.
+
+---
+
+## 🐳 Deployment
+
+### Docker
+
+```bash
+docker-compose up -d
+```
+
+### Kubernetes
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: webai-to-api
+spec:
+  ports:
+  - port: 6969
+  selector:
+    app: webai-to-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webai-to-api
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: webai
+        image: webai-to-api:v0.5.0
+        ports:
+        - containerPort: 6969
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 6969
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 6969
 ```
 
 ---
 
-## Developer Documentation
+## 📊 Comparación con Original
 
-### Overview
-
-The project is built on a modular architecture designed for scalability and ease of maintenance. Its primary components are:
-
-- **app/main.py:** Initializes the FastAPI application, configures middleware, and manages application lifespan (startup and shutdown routines).
-- **app/config.py:** Handles the loading and updating of configuration settings from `config.conf`.
-- **app/logger.py:** Sets up a centralized logging system.
-- **app/endpoints/:** Contains separate modules for handling API endpoints. Each module (e.g., `gemini.py` and `chat.py`) manages routes specific to their functionality.
-- **app/services/:** Encapsulates business logic, including the Gemini client wrapper (`gemini_client.py`) and session management (`session_manager.py`).
-- **app/utils/browser.py:** Provides helper functions, such as retrieving cookies from the browser for authentication.
-- **models/:** Holds model definitions like `MyGeminiClient` for interfacing with the Gemini Web API.
-- **schemas/:** Defines Pydantic models for validating API requests.
-
-### How It Works
-
-1. **Application Initialization:**  
-   On startup, the application loads configurations and initializes the Gemini client and session managers. This is managed via the `lifespan` context in `app/main.py`.
-
-2. **Routing:**  
-   The API endpoints are organized into dedicated routers under `app/endpoints/`, which are then included in the main FastAPI application.
-
-3. **Service Layer:**  
-   The `app/services/` directory contains the logic for interacting with the Gemini API and managing user sessions, ensuring that the API routes remain clean and focused on request handling.
-
-4. **Utilities and Configurations:**  
-   Helper functions and configuration logic are kept separate to maintain clarity and ease of updates.
+| Característica | Original | Esta Versión (v0.5.0) |
+|----------------|----------|----------------------|
+| **Seguridad** | ❌ Sin autenticación | ✅ API keys + rate limiting |
+| **Monitoreo** | ⚠️ Básico | ✅ Health checks + métricas |
+| **Testing** | ❌ Sin tests | ✅ Suite completa con pytest |
+| **Documentación** | ⚠️ README básico | ✅ 5 archivos de docs |
+| **Streaming** | ⚠️ Básico | ✅ SSE optimizado |
+| **Tokens** | ❌ Hardcoded a 0 | ✅ Conteo real con tiktoken |
+| **Configuración** | ⚠️ config.conf | ✅ .env + validación |
+| **Para Agentes** | ⚠️ Funcional | ✅ Optimizado |
+| **Production Ready** | ❌ No | ✅ Sí |
 
 ---
 
-## 🐳 Docker Deployment Guide
+## 📁 Estructura del Proyecto
 
-For Docker setup and deployment instructions, please refer to the [Docker.md](Docker.md) documentation.
+```
+WebAI-to-API-master/
+├── src/
+│   ├── app/
+│   │   ├── endpoints/
+│   │   │   ├── chat.py          # Chat con streaming y tokens
+│   │   │   ├── gemini.py        # Endpoints de Gemini
+│   │   │   └── health.py        # ✨ NUEVO: Health checks
+│   │   ├── middleware/          # ✨ NUEVO
+│   │   │   ├── auth.py          # Autenticación
+│   │   │   └── rate_limit.py    # Rate limiting
+│   │   ├── services/
+│   │   │   ├── gemini_client.py
+│   │   │   ├── session_manager.py
+│   │   │   └── cookie_manager.py # ✨ NUEVO: Auto-renovación
+│   │   ├── utils/
+│   │   │   ├── browser.py
+│   │   │   └── tokens.py        # ✨ NUEVO: Conteo de tokens
+│   │   ├── config.py            # ✨ MEJORADO: dotenv
+│   │   └── main.py              # ✨ MEJORADO: Middlewares
+│   └── run.py
+├── tests/                       # ✨ NUEVO
+│   ├── conftest.py
+│   ├── test_config.py
+│   ├── test_endpoints/
+│   └── test_middleware/
+├── .env.example                 # ✨ NUEVO
+├── SECURITY.md                  # ✨ NUEVO
+├── TESTING.md                   # ✨ NUEVO
+├── QUICKSTART.md                # ✨ NUEVO
+├── GEMINI_SETUP.md              # ✨ NUEVO
+├── pyproject.toml               # ✨ MEJORADO
+└── README.md                    # ✨ MEJORADO (este archivo)
+```
 
 ---
 
-## Star History
+## 🤝 Contribuir
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Amm1rr/WebAI-to-API&type=Date)](https://www.star-history.com/#Amm1rr/WebAI-to-API&Date)
+¡Las contribuciones son bienvenidas! Por favor:
 
-## License 📜
-
-This project is open source under the [MIT License](LICENSE).
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
 ---
 
-> **Note:** This is a research project. Please use it responsibly, and be aware that additional security measures and error handling are necessary for production deployments.
+## 📄 Licencia
 
-<br>
+Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
 
-[![](https://visitcount.itsvg.in/api?id=amm1rr&label=V&color=0&icon=2&pretty=true)](https://github.com/Amm1rr/)
+---
+
+## 🙏 Agradecimientos
+
+- Proyecto original: [WebAI-to-API](https://github.com/Amm1rr/WebAI-to-API) por [Amm1rr](https://github.com/Amm1rr)
+- [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API) por HanaokaYuzu
+- [g4f](https://github.com/xtekky/gpt4free) por xtekky
+
+---
+
+## 📞 Soporte
+
+- **Issues**: [GitHub Issues](https://github.com/elvis3770/WebAI-to-API-master/issues)
+- **Documentación**: Ver archivos `.md` en el repositorio
+- **Original**: [WebAI-to-API Original](https://github.com/Amm1rr/WebAI-to-API)
+
+---
+
+## 🌟 Características Destacadas
+
+### Para Desarrolladores
+- 🔧 Configuración con variables de entorno
+- 🧪 Tests automatizados
+- 📊 Monitoreo integrado
+- 🔒 Seguridad por defecto
+
+### Para Agentes AI
+- 🤖 Compatible con LangChain, CrewAI, AutoGen
+- ⚡ Streaming en tiempo real
+- 💰 Gratis (usa Gemini sin API key)
+- 📈 Conteo preciso de tokens
+
+### Para Producción
+- 🚀 Health checks para Kubernetes
+- 🛡️ Rate limiting y autenticación
+- 📝 Logging estructurado
+- 🔄 Auto-renovación de cookies
+
+---
+
+**⭐ Si este proyecto te es útil, considera darle una estrella!**

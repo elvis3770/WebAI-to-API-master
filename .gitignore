@@ -1,0 +1,35 @@
+# File; .gitignore
+
+.vscode
+.python-version
+__pycache__
+.idea
+config.conf
+generated_media
+har_and_cookies
+
+# Environment variables (contains secrets)
+.env
+.env.local
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Logs
+logs/
+*.log
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist/
+build/

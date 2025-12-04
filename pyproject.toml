@@ -1,0 +1,81 @@
+# File: pyproject.toml
+
+[tool.poetry]
+name = "webai-to-api"
+version = "0.4.0"
+description = "WebAI-to-API is a modular web server built with FastAPI, designed to manage requests across AI services."
+authors = ["Mohammad <m.khani2810@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+packages = [
+    { include = "app", from = "src" },
+    { include = "models", from = "src" },
+    { include = "schemas", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+fastapi = ">=0.115.7,<0.116.0"
+browser-cookie3 = ">=0.20.1,<0.21.0"
+httpx = ">=0.28.1,<0.29.0"
+curl-cffi = ">=0.7.4,<0.8.0"
+gemini-webapi = ">=1.8.3,<2.0.0"
+uvicorn = {extras = ["standard"], version = ">=0.34.0,<0.35.0"}
+
+# Windows-specific dependencies for cookie decryption
+# These will only be installed on Windows systems
+pywin32 = { version = "==308", platform = "win32" }
+pycryptodomex = { version = "==3.21.0", platform = "win32" }
+tomli = "^2.2.1"
+g4f = "^0.5.5.6"
+python-multipart = "^0.0.20"
+aiohttp-socks = "^0.10.1"
+nodriver = "^0.46.1"
+platformdirs = "^4.3.8"
+
+# New dependencies for enhanced features
+python-dotenv = "^1.0.0"      # Environment variable management
+slowapi = "^0.1.9"            # Rate limiting (alternative to custom implementation)
+tiktoken = "^0.5.2"           # Token counting for OpenAI models
+structlog = "^24.1.0"         # Structured logging
+
+[tool.poetry.group.dev.dependencies]
+# Testing
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+
+# Code quality
+ruff = "^0.1.0"               # Fast Python linter
+black = "^23.0.0"             # Code formatter
+mypy = "^1.7.0"               # Type checker
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "N", "W", "B", "C4"]
+ignore = ["E501"]  # Line too long (handled by black)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+asyncio_mode = "auto"
+addopts = "--cov=src --cov-report=html --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

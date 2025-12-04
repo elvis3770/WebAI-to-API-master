@@ -1,9 +1,10 @@
 # src/app/main.py
 import os
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.services.gemini_client import get_gemini_client
 from app.services.session_manager import init_session_managers
@@ -13,6 +14,30 @@ from app.config import get_env, get_env_bool
 # Import middleware
 from app.middleware.auth import APIKeyMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
+
+
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to force HTTPS in production.
+    Redirects HTTP requests to HTTPS.
+    """
+    async def dispatch(self, request: Request, call_next):
+        # Only enforce HTTPS in production
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            # Check if request is not HTTPS
+            if request.url.scheme != "https":
+                # Allow health checks on HTTP
+                if request.url.path not in ["/health", "/health/live", "/health/ready"]:
+                    url = request.url.replace(scheme="https")
+                    return JSONResponse(
+                        status_code=301,
+                        content={"detail": "Please use HTTPS"},
+                        headers={"Location": str(url)}
+                    )
+        
+        response = await call_next(request)
+        return response
+
 
 # Import endpoint routers
 from app.endpoints import gemini, chat, google_generative, health, agents
@@ -71,6 +96,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add HTTPS redirect middleware (production only)
+app.add_middleware(HTTPSRedirectMiddleware)
+logger.info("HTTPS redirect middleware added (active in production mode)")
+
 
 
 # Add security middleware

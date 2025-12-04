@@ -15,7 +15,7 @@ from app.middleware.auth import APIKeyMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 
 # Import endpoint routers
-from app.endpoints import gemini, chat, google_generative, health
+from app.endpoints import gemini, chat, google_generative, health, agents
 
 
 @asynccontextmanager
@@ -113,6 +113,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Register the endpoint routers for WebAI-to-API
 app.include_router(health.router, tags=["Health"])
+app.include_router(agents.router, tags=["Agents"])  # NEW: Agent-specific endpoints
 app.include_router(gemini.router, tags=["Gemini"])
 app.include_router(chat.router, tags=["Chat"])
 app.include_router(google_generative.router, tags=["Google Generative AI"])

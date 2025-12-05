@@ -91,6 +91,9 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     """
     
     async def dispatch(self, request: Request, call_next):
+        # AUTH COMPLETELY DISABLED - Return immediately
+        return await call_next(request)
+
         """
         Process request and validate API key.
         

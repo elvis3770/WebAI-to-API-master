@@ -200,116 +200,35 @@ def print_server_info(host: str, port: int, mode: str):
 
 # --- Main Execution Block ---
 if __name__ == "__main__":
-    # Fix: Set the asyncio event loop policy for Windows in the main process as well.
+    print("\n" + "="*80)
+    print("WebAI-to-API v0.5.0 - FORCED WEBAI MODE (Cookies)")
+    print("="*80)
+    
+    # Windows fix
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    # This must be the first line inside the main block for multiprocessing on Windows.
-    multiprocessing.freeze_support()
-
-    manager = multiprocessing.Manager()
-    shared_state = manager.dict({"requested_mode": None})
-
-    parser = argparse.ArgumentParser(
-        description="Run a managed server with hot-switching capability."
-    )
-    parser.add_argument("--host", type=str, default="localhost", help="Host IP address")
+        multiprocessing.freeze_support()
+    
+    # Parse args
+    parser = argparse.ArgumentParser(description="WebAI-to-API Server")
+    parser.add_argument("--host", type=str, default="localhost", help="Host address")
     parser.add_argument("--port", type=int, default=6969, help="Port number")
-    parser.add_argument(
-        "--reload", action="store_true", help="Enable auto-reloading for WebAI mode"
-    )
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
     args = parser.parse_args()
-
-    print("INFO:     Checking availability of server modes...")
+    
+    # Check if Gemini client can initialize
+    print("INFO:     Checking Gemini client (cookies)...")
     webai_is_available = asyncio.run(init_gemini_client())
-    if webai_is_available:
-        print(
-            f"INFO:     ✅ {Colors.CYAN}WebAI-to-API mode is available{Colors.RESET} (Gemini client initialized)."
-        )
-    else:
-        print(
-            f"WARN:     ⚠️ {Colors.YELLOW}WebAI-to-API mode is not available{Colors.RESET} (Could not initialize Gemini client)."
-        )
-    if G4F_AVAILABLE:
-        print(
-            f"INFO:     ✅ {Colors.CYAN}gpt4free mode is available{Colors.RESET} ('g4f' library is installed)."
-        )
-    else:
-        print(
-            f"WARN:     ⚠️ {Colors.YELLOW}gpt4free mode is not available{Colors.RESET} ('g4f' library not found)."
-        )
-
-    # --- Set initial mode based on OS ---
-    initial_mode = "webai" if webai_is_available else "g4f" if G4F_AVAILABLE else None
-
-    if not initial_mode:
-        print("\nERROR:    No server modes are available to run. Exiting.")
+    
+    if not webai_is_available:
+        print("ERROR:    Gemini client failed to initialize. Check cookies in .env")
         sys.exit(1)
-
-    # Start background input listener thread
-    input_thread = threading.Thread(
-        target=input_listener, args=(shared_state,), daemon=True
-    )
-    input_thread.start()
-
-    current_process = None
-    current_mode = None
-    stop_event = None
-
-    try:
-        # Main controller loop
-        while True:
-            requested = shared_state["requested_mode"]
-            if not current_process or (requested and requested != current_mode):
-
-                if current_process and current_process.is_alive():
-                    print(
-                        f"\n[Controller] Gracefully stopping server ('{current_mode}')..."
-                    )
-                    if stop_event is not None:
-                        stop_event.set()
-                    current_process.join(timeout=10)
-                    if current_process.is_alive():
-                        print("[Controller] Process did not stop in time, terminating.")
-                        current_process.terminate()
-
-                current_mode = requested or initial_mode
-                shared_state["requested_mode"] = None
-
-                print(f"\n[Controller] Starting server in '{current_mode}' mode...")
-
-                stop_event = multiprocessing.Event()
-
-                if current_mode == "webai":
-                    process_args = (args.host, args.port, args.reload, stop_event)
-                    target_func = start_webai_server
-                else:
-                    process_args = (args.host, args.port, stop_event)
-                    target_func = start_g4f_server
-
-                current_process = multiprocessing.Process(
-                    target=target_func, args=process_args
-                )
-                current_process.start()
-
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        print("\n[Controller] Ctrl+C detected. Initiating final shutdown...")
-
-    finally:
-        # Final cleanup
-        if stop_event and not stop_event.is_set():
-            stop_event.set()
-
-        if current_process and current_process.is_alive():
-            print("[Controller] Waiting for final server process to shut down...")
-            current_process.join(timeout=10)
-            if current_process.is_alive():
-                print("[Controller] Server did not shut down gracefully, terminating.")
-                current_process.terminate()
-
-        print("[Controller] Shutting down manager process...")
-        manager.shutdown()
-
-        print("[Controller] Shutdown complete. Forcing exit.")
-        os._exit(0)
+    
+    print("INFO:     ✅ Gemini client initialized successfully")
+    print("INFO:     🚀 Starting server in WEBAI mode (forced)")
+    print(f"INFO:     Server will run on http://{args.host}:{args.port}")
+    print("="*80)
+    
+    # Start WebAI server directly - NO INPUT REQUIRED
+    stop_event = multiprocessing.Event()
+    start_webai_server(args.host, args.port, args.reload, stop_event)
